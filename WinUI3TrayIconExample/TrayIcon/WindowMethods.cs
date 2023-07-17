@@ -55,7 +55,8 @@ namespace WinUI3TrayIconExample.TrayIcon
                 {
                     Console.WriteLine("NotifyIcon Right Clicked");
                     // create new window
-
+                    
+                    //TODO: Some stupid focus stuff going on
                     newWindow.Activate();
                     newWindow.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32((int)GetCursorPosition().X, (int)GetCursorPosition().Y, 1, 1));
                     menuFlyout.ShowAt(container, new Point(0, 0));
