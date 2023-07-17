@@ -3,6 +3,9 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Runtime.InteropServices;
 using WinRT.Interop;
+using WinUIEx;
+using static WinUI3TrayIconExample.TrayIcon.Win32Constants;
+using static WinUI3TrayIconExample.TrayIcon.Win32DllImports;
 
 namespace WinUI3TrayIconExample.TrayIcon
 {
@@ -28,32 +31,23 @@ namespace WinUI3TrayIconExample.TrayIcon
         private const int SWP_NOOWNERZORDER = 0x0200;
         #endregion
         #region DLLImports
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern IntPtr GetWindowLong(IntPtr hWnd, int nIndex);
 
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
         #endregion
 
         private IntPtr hWnd;
-        public Window newWindow;
-        private MenuFlyout menuFlyout;
-        private StackPanel stackPanel;
+        public Window newWindow = new WindowEx() { IsAlwaysOnTop = true };
+        public MenuFlyout menuFlyout;
+        public ContentControl container;
+
 
         public TrayFlyoutWindow()
         {
-            newWindow = new Window();
-
             InitializeWindowContent();
 
             hWnd = WindowNative.GetWindowHandle(newWindow);
             SetWindowStyle();
 
-
-            newWindow.Activate();
+            //newWindow.Activate();
             OpenFlyout();
         }
 
@@ -69,22 +63,22 @@ namespace WinUI3TrayIconExample.TrayIcon
 
         private void SetWindowStyle()
         {
-            IntPtr style = GetWindowLong(hWnd, GWL_STYLE);
-            style = (IntPtr)(style.ToInt64() & ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
-            SetWindowLong(hWnd, GWL_STYLE, style);
+            int style = GetWindowLong(hWnd, GWL_STYLE);
+            style = (int)(style & ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
+            SetWindowLong(hWnd, GWL_STYLE, (IntPtr)style);
 
             // Remove extended styles
-            IntPtr exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
-            exStyle = (IntPtr)(exStyle.ToInt64() & ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
-            SetWindowLong(hWnd, GWL_EXSTYLE, exStyle);
+            int exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+            exStyle = (int)(exStyle & ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+            SetWindowLong(hWnd, GWL_EXSTYLE, (IntPtr)exStyle);
 
             // Redraw the window with the changed styles
-            SetWindowPos(hWnd, IntPtr.Zero, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+            SetWindowPos(hWnd, (IntPtr)HWND_TOPMOST, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
 
             //TODO: Make window transparent
 
             // Set window to 1,1 pixel
-            newWindow.AppWindow.Resize(new Windows.Graphics.SizeInt32(50, 50)); // 1,1
+            newWindow.AppWindow.Resize(new Windows.Graphics.SizeInt32(0, 0)); // 1,1
         }
 
         private void OpenFlyout()
@@ -99,7 +93,7 @@ namespace WinUI3TrayIconExample.TrayIcon
             menuFlyout.Items.Add(menuItem1);
             menuFlyout.Items.Add(menuItem2);
 
-            ContentControl container = new() { Content = menuFlyout };
+            container = new() { Content = menuFlyout };
             newWindow.Content = container;
             menuFlyout.ShowAt(container);
         }

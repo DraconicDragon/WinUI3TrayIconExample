@@ -13,13 +13,14 @@ namespace WinUI3TrayIconExample
         public MainWindow()
         {
             this.InitializeComponent();
-            tray = new TrayFlyoutWindow();
+            tray = new ShellNotifyIcon();
         }
 
         private void myButton_Click(object sender, RoutedEventArgs e)
         {
             myButton.Content = "Clicked";
-            tray.newWindow.Activate();
+            //tray.newWindow.Activate();
+            
         }
     }
 }
