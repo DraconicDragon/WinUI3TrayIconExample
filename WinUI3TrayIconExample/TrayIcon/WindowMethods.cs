@@ -57,6 +57,7 @@ namespace WinUI3TrayIconExample.TrayIcon
                     // create new window
                     
                     //TODO: Some stupid focus stuff going on
+                    //TODO: separate win32 code and the winui stuffs in the "nor´mal" c# aaaaaaaaaaaaaaaaaaa im tired
                     newWindow.Activate();
                     newWindow.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32((int)GetCursorPosition().X, (int)GetCursorPosition().Y, 1, 1));
                     menuFlyout.ShowAt(container, new Point(0, 0));
