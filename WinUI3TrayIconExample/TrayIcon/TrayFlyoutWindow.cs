@@ -31,54 +31,31 @@ namespace WinUI3TrayIconExample.TrayIcon
         private const int SWP_NOOWNERZORDER = 0x0200;
         #endregion
         #region DLLImports
-
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
         #endregion
 
-        private IntPtr hWnd;
-        public Window newWindow = new WindowEx() { IsAlwaysOnTop = true };
+        public IntPtr hWnd;
+        public Window newWindow = new WindowEx()
+        {
+            IsAlwaysOnTop = true, IsResizable = false, 
+        };
         public MenuFlyout menuFlyout;
         public ContentControl container;
 
 
         public TrayFlyoutWindow()
         {
-            InitializeWindowContent();
-
             hWnd = WindowNative.GetWindowHandle(newWindow);
-            SetWindowStyle();
+            newWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent);
+            newWindow.SetWindowOpacity(0);
+            newWindow.ExtendsContentIntoTitleBar = true;
 
-            //newWindow.Activate();
+            newWindow.Content.LostFocus += Content_LostFocus;
+            
             OpenFlyout();
-        }
-
-        private void InitializeWindowContent()
-        {
-
-
-
-
-
-
-        }
-
-        private void SetWindowStyle()
-        {
-            int style = GetWindowLong(hWnd, GWL_STYLE);
-            style = (int)(style & ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
-            SetWindowLong(hWnd, GWL_STYLE, (IntPtr)style);
-
-            // Remove extended styles
-            int exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
-            exStyle = (int)(exStyle & ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
-            SetWindowLong(hWnd, GWL_EXSTYLE, (IntPtr)exStyle);
-
-            // Redraw the window with the changed styles
-            SetWindowPos(hWnd, (IntPtr)HWND_TOPMOST, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
-
-            //TODO: Make window transparent
-
-            // Set window to 1,1 pixel
-            newWindow.AppWindow.Resize(new Windows.Graphics.SizeInt32(0, 0)); // 1,1
+            menuFlyout.Closed += MenuFlyout_Closed;
         }
 
         private void OpenFlyout()
@@ -93,9 +70,18 @@ namespace WinUI3TrayIconExample.TrayIcon
             menuFlyout.Items.Add(menuItem1);
             menuFlyout.Items.Add(menuItem2);
 
-            container = new() { Content = menuFlyout };
+            container = new() { Content = menuFlyout};
             newWindow.Content = container;
-            menuFlyout.ShowAt(container);
+           
+        }
+
+        private void MenuFlyout_Closed(object sender, object e)
+        {
+            newWindow.AppWindow.Hide();
+        }
+        private void Content_LostFocus(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            newWindow.AppWindow.Hide();
         }
     }
 }

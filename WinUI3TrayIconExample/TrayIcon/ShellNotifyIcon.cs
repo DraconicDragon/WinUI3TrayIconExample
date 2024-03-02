@@ -5,7 +5,7 @@ using static WinUI3TrayIconExample.TrayIcon.Win32DllImports;
 
 namespace WinUI3TrayIconExample.TrayIcon
 {
-    partial class ShellNotifyIcon : TrayFlyoutWindow
+    partial class ShellNotifyIcon
     {
         private IntPtr windowHandle;
         private IntPtr notifyIconHandle;
@@ -15,12 +15,6 @@ namespace WinUI3TrayIconExample.TrayIcon
 
         public ShellNotifyIcon()
         {
-            trayWindow = new();
-
-            menuFlyout.Closed += MenuFlyout_Closed;
-            //newWindow.Content.LostFocus += Content_LostFocus;
-
-
             wndProcDelegate = new WndProcDelegate(WndProc);
             windowHandle = CreateWindow();
             SetWndProc();
@@ -36,15 +30,13 @@ namespace WinUI3TrayIconExample.TrayIcon
                 szTip = "System Tray Icon"
             };
             Shell_NotifyIcon(NIM_ADD, ref notifyIconData);
-            newWindow.Closed += (sender, args) => Dispose();
+            //newWindow.Closed += (sender, args) => Dispose();
         }
-
-
 
         private void SetWndProc()
         {
             GCHandle.Alloc(wndProcDelegate);
-            SetWindowLong(windowHandle, -4, Marshal.GetFunctionPointerForDelegate(wndProcDelegate));
+            SetWindowLong(windowHandle, 0, Marshal.GetFunctionPointerForDelegate(wndProcDelegate));
         }
 
         // Correctly disposes off of the notifyIcon
@@ -54,13 +46,6 @@ namespace WinUI3TrayIconExample.TrayIcon
             DestroyIcon(notifyIconHandle);
             DestroyWindow(windowHandle);
         }
-        private void MenuFlyout_Closed(object sender, object e)
-        {
-            newWindow.AppWindow.Hide();
-        }
-        private void Content_LostFocus(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-        {
-            newWindow.AppWindow.Hide();
-        }
+        
     }
 }

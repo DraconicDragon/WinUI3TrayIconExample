@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using static WinUI3TrayIconExample.TrayIcon.Win32DllImports;
 using static WinUI3TrayIconExample.TrayIcon.Win32Constants;
 using Windows.Foundation;
+using WinUIEx;
 
 namespace WinUI3TrayIconExample.TrayIcon
 {
@@ -58,9 +59,10 @@ namespace WinUI3TrayIconExample.TrayIcon
                     
                     //TODO: Some stupid focus stuff going on
                     //TODO: separate win32 code and the winui stuffs in the "nor´mal" c# aaaaaaaaaaaaaaaaaaa im tired
-                    newWindow.Activate();
-                    newWindow.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32((int)GetCursorPosition().X, (int)GetCursorPosition().Y, 1, 1));
-                    menuFlyout.ShowAt(container, new Point(0, 0));
+                    MainWindow.tray.newWindow.Activate();
+                    MainWindow.tray.newWindow.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32((int)GetCursorPosition().X-10/*HACK cringe window kinda offset */, (int)GetCursorPosition().Y, 0, 0));
+                    MainWindow.tray.menuFlyout.ShowAt(MainWindow.tray.container, new Point(0, 0));
+                    TrayFlyoutWindow.SetForegroundWindow(MainWindow.tray.hWnd);
                 }
             }
 
